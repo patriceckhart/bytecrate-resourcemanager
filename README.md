@@ -44,7 +44,7 @@ if (content) {
 const result2 = await add(buffer, 'picture.jpg');
 if (result2.response === 'exists') {
   console.log('File already exists:', result2.message);
-  
+
   // Force replace if needed
   const result3 = await add(buffer, 'picture.jpg', { replace: true });
   console.log('File replaced:', result3.response);
@@ -148,20 +148,20 @@ process.env.STORAGE_PATH = './uploads';
 async function uploadFile() {
   // Read a file
   const imageBuffer = await fs.readFile('./photo.jpg');
-  
+
   // Upload to storage
   const result = await add(imageBuffer, 'photo.jpg');
-  
+
   if (result.response === 'success') {
     console.log('Uploaded successfully!');
     console.log('SHA1:', result.data.resource.split('/').pop());
     console.log('Size:', result.data.fileSize);
     console.log('MIME:', result.data.mimetype);
-    
+
     // Retrieve the file
     const sha1 = result.data.resource.split('/').pop();
     const retrieved = await find(sha1);
-    
+
     if (retrieved) {
       await fs.writeFile('./photo-copy.jpg', retrieved);
       console.log('File retrieved and saved!');
@@ -181,9 +181,6 @@ yarn build
 
 # Watch mode
 yarn dev
-
-# Run tests
-npx ts-node test-local-storage.ts
 ```
 
 ## License
