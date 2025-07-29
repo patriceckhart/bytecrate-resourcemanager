@@ -1,0 +1,32 @@
+{
+  "name": "bytecrate-resourcemanager",
+  "version": "1.0.0",
+  "description": "Resource manager for Google Cloud Storage and local file system",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prepare": "yarn build"
+  },
+  "keywords": [
+    "resource-manager",
+    "google-cloud-storage",
+    "file-storage"
+  ],
+  "author": "Patric Eckhart",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/storage": "^7.7.0",
+    "mime-types": "^2.1.35"
+  },
+  "devDependencies": {
+    "@types/mime-types": "^2.1.4",
+    "@types/node": "^20.10.5",
+    "typescript": "^5.3.3"
+  },
+  "files": [
+    "dist"
+  ]
+}
