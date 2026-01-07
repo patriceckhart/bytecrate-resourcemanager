@@ -7,9 +7,11 @@ import * as mime from 'mime-types';
 export class GoogleCloudStorageProvider implements StorageProvider {
   private storage: Storage;
   private bucketName: string;
+  private defaultSignatureLifetime: number;
 
-  constructor(bucketName: string, keyFileOrBase64?: string) {
+  constructor(bucketName: string, keyFileOrBase64?: string, signatureLifetime?: number) {
     this.bucketName = bucketName;
+    this.defaultSignatureLifetime = signatureLifetime || 3600; // Default 1 hour
     
     if (keyFileOrBase64) {
       // Check if it's a base64 string
@@ -107,6 +109,39 @@ export class GoogleCloudStorageProvider implements StorageProvider {
       }
       
       return null;
+    } catch {
+      return null;
+    }
+  }
+
+  async getSignedUrl(storedUrl: string, expiresIn?: number): Promise<string | null> {
+    try {
+      // Parse the stored URL to extract bucket and object name
+      // Format: https://storage.googleapis.com/bucket/sha1 or storage.googleapis.com/bucket/sha1
+      const urlPattern = /(?:https?:\/\/)?storage\.googleapis\.com\/([^\/]+)\/([a-f0-9]{40})$/;
+      const match = storedUrl.match(urlPattern);
+      
+      if (!match) {
+        return null;
+      }
+      
+      const [, bucketName, objectName] = match;
+      
+      const bucket = this.storage.bucket(bucketName);
+      const file = bucket.file(objectName);
+      
+      const [exists] = await file.exists();
+      if (!exists) {
+        return null;
+      }
+      
+      const lifetime = expiresIn || this.defaultSignatureLifetime;
+      const [signedUrl] = await file.getSignedUrl({
+        action: 'read',
+        expires: Date.now() + lifetime * 1000
+      });
+      
+      return signedUrl;
     } catch {
       return null;
     }

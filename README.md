@@ -8,15 +8,13 @@ A TypeScript resource management library with support for local file system and 
 - **SHA1-based Storage**: Files are stored using their SHA1 hash for deduplication
 - **Hierarchical Directory Structure**: Local storage uses nested directories for better performance with large file counts
 - **SHA1-based Retrieval**: Find files using their SHA1 hash
-- **Simple API**: Just two main methods - `add()` and `find()`
+- **Simple API**: `add()`, `find()`, and `getSignedUrl()` for private buckets
 - **TypeScript Support**: Fully typed with TypeScript definitions
 
 ## Installation
 
 ```bash
 npm install bytecrate-resourcemanager
-# or
-yarn add bytecrate-resourcemanager
 ```
 
 ## Usage
@@ -68,6 +66,9 @@ GCS_BUCKET=your-bucket-name
 GCS_KEY_FILE=/path/to/service-account-key.json
 # Or use base64 encoded credentials
 GCS_KEY_FILE=base64-encoded-credentials
+
+# For private GCS buckets - signed URL expiry in seconds (default: 3600)
+GCS_SIGNATURE_LIFETIME=3600
 ```
 
 ### Local Storage
@@ -135,6 +136,31 @@ Retrieves a file from storage.
 const content = await find('2ef7bde608ce5404e97d5f042f95f89f1c232871');
 ```
 
+### `getSignedUrl(storedUrl: string, expiresIn?: number): Promise<string | null>`
+
+Generates a signed URL for accessing files in private Google Cloud Storage buckets.
+
+**Parameters:**
+- `storedUrl`: The stored URL in format `https://storage.googleapis.com/bucket/sha1` or `storage.googleapis.com/bucket/sha1`
+- `expiresIn`: Optional expiry time in seconds (defaults to `GCS_SIGNATURE_LIFETIME` or 3600 seconds)
+
+**Returns:** Signed URL string, or null if file not found or not using GCS
+
+**Example:**
+```typescript
+// URL stored in your database
+const storedUrl = 'https://storage.googleapis.com/my-bucket/2ef7bde608ce5404e97d5f042f95f89f1c232871';
+
+// Generate signed URL with default expiry (1 hour)
+const signedUrl = await getSignedUrl(storedUrl);
+
+// Generate signed URL with custom expiry (5 minutes)
+const signedUrl = await getSignedUrl(storedUrl, 300);
+
+// Returns something like:
+// https://storage.googleapis.com/my-bucket/2ef7bde608ce5404e97d5f042f95f89f1c232871?X-Goog-Algorithm=...&X-Goog-Signature=...
+```
+
 ## Example
 
 ```typescript
@@ -174,13 +200,16 @@ async function uploadFile() {
 
 ```bash
 # Install dependencies
-yarn install
+npm install
 
 # Build the project
-yarn build
+npm run build
 
 # Watch mode
-yarn dev
+npm run dev
+
+# Run tests (requires GCS credentials)
+STORAGE_TYPE=gcs GCS_BUCKET=your-bucket GCS_KEY_FILE=base64-credentials npm test
 ```
 
 ## License

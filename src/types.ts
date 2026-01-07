@@ -18,4 +18,5 @@ export interface AddOptions {
 export interface StorageProvider {
   add(buffer: Buffer, fileName: string, options?: AddOptions): Promise<ResourceResponse>;
   find(identifier: string): Promise<Buffer | null>;
+  getSignedUrl?(storedUrl: string, expiresIn?: number): Promise<string | null>;
 }
