@@ -1,6 +1,6 @@
 {
   "name": "bytecrate-resourcemanager",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "description": "Resource manager for Google Cloud Storage and local file system",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
