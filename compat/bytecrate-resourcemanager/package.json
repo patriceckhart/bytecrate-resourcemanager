@@ -1,0 +1,12 @@
+{
+  "name": "bytecrate-resourcemanager",
+  "version": "1.0.3",
+  "description": "Compatibility wrapper for @patriceckhart/resourcemanager",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": ["index.js", "index.d.ts"],
+  "license": "MIT",
+  "dependencies": {
+    "@patriceckhart/resourcemanager": "0.0.3"
+  }
+}

@@ -1,4 +1,4 @@
-# bytecrate-resourcemanager
+# @patriceckhart/resourcemanager
 
 A TypeScript resource management library with support for local file system and Google Cloud Storage. Files are stored using their SHA1 hash as identifiers, ensuring deduplication and efficient retrieval.
 
@@ -14,7 +14,7 @@ A TypeScript resource management library with support for local file system and 
 ## Installation
 
 ```bash
-npm install bytecrate-resourcemanager
+npm install @patriceckhart/resourcemanager
 ```
 
 ## Usage
@@ -22,7 +22,7 @@ npm install bytecrate-resourcemanager
 ### Basic Setup
 
 ```typescript
-import { add, find } from 'bytecrate-resourcemanager';
+import { add, find } from '@patriceckhart/resourcemanager';
 
 // Add a file from Buffer
 const buffer = await fs.readFile('picture.jpg');
@@ -164,7 +164,7 @@ const signedUrl = await getSignedUrl(storedUrl, 300);
 ## Example
 
 ```typescript
-import { add, find } from 'bytecrate-resourcemanager';
+import { add, find } from '@patriceckhart/resourcemanager';
 import fs from 'fs/promises';
 
 // Configure for local storage
@@ -211,6 +211,20 @@ npm run dev
 # Run tests (requires GCS credentials)
 STORAGE_TYPE=gcs GCS_BUCKET=your-bucket GCS_KEY_FILE=base64-credentials npm test
 ```
+
+## Releases
+
+The GitHub Actions release workflow runs on pushes to `main` or manually from the Actions tab. It installs dependencies with npm, resolves the next version, builds, checks the package contents, publishes to npm using the repository secret `NPM_TOKEN`, and creates a version commit, git tag, and GitHub release.
+
+The initial release under the `@patriceckhart/resourcemanager` name is `0.0.3`. Automatic releases increment the highest stable version in package metadata or git tags. The default `next` bump increments the patch through `0.0.99`, then rolls over to `0.1.0`. Patch and minor components roll over at 99: `0.99.99` becomes `1.0.0`, and `1.99.99` becomes `2.0.0`. Manual runs also support an exact stable version, standard patch/minor/major bumps, and a custom npm dist-tag.
+
+The workflow needs permission to push commits and tags to `main`. Branch protection must allow the release bot to push. `NPM_TOKEN` must have publish access to the `@patriceckhart/resourcemanager` package, and the npm package name must be available to your account. GCS integration tests are not run during release because they require credentials and write to a real bucket.
+
+### Old package compatibility
+
+`compat/bytecrate-resourcemanager` contains the `1.0.3` compatibility wrapper, pinned to `@patriceckhart/resourcemanager@0.0.3`. It preserves old imports for users who update the old package. Future implementation updates require updating this dependency and publishing a new wrapper version.
+
+After `@patriceckhart/resourcemanager@0.0.3` is published, the manual **Migrate old npm package** workflow can publish the wrapper and deprecate the old package using `NPM_TOKEN`. It skips publishing if the wrapper version already exists with the expected dependency.
 
 ## License
 

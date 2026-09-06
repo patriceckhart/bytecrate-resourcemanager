@@ -1,0 +1,62 @@
+name: Migrate old npm package
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-release
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: compat/bytecrate-resourcemanager
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Verify authentication and target package
+        run: |
+          npm whoami
+          npm view @patriceckhart/resourcemanager@0.0.3 version
+
+      - name: Install and verify wrapper
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          node -e "const assert = require('node:assert/strict'); assert.strictEqual(require('./'), require('@patriceckhart/resourcemanager'));"
+          npm pack --dry-run
+
+      - name: Publish compatibility wrapper if needed
+        run: |
+          node <<'NODE'
+          const { execFileSync } = require('node:child_process');
+          const pkg = require('./package.json');
+          const versions = JSON.parse(execFileSync('npm', ['view', pkg.name, 'versions', '--json'], { encoding: 'utf8' }));
+          if ([].concat(versions).includes(pkg.version)) {
+            const dependencies = JSON.parse(execFileSync('npm', ['view', `${pkg.name}@${pkg.version}`, 'dependencies', '--json'], { encoding: 'utf8' }));
+            if (dependencies['@patriceckhart/resourcemanager'] !== pkg.dependencies['@patriceckhart/resourcemanager']) {
+              throw new Error('Published version does not match the expected wrapper dependency');
+            }
+            console.log('Wrapper version already published');
+          } else {
+            execFileSync('npm', ['publish', '--access', 'public', '--provenance'], { stdio: 'inherit' });
+          }
+          NODE
+
+      - name: Deprecate old package
+        run: npm deprecate 'bytecrate-resourcemanager@*' 'Renamed to @patriceckhart/resourcemanager. Run npm uninstall bytecrate-resourcemanager && npm install @patriceckhart/resourcemanager, then update your imports.'
