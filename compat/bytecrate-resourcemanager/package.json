@@ -2,6 +2,11 @@
   "name": "bytecrate-resourcemanager",
   "version": "1.0.3",
   "description": "Compatibility wrapper for @patriceckhart/resourcemanager",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/patriceckhart/bytecrate-resourcemanager.git",
+    "directory": "compat/bytecrate-resourcemanager"
+  },
   "main": "index.js",
   "types": "index.d.ts",
   "files": ["index.js", "index.d.ts"],
