@@ -1,6 +1,6 @@
 {
   "name": "@patriceckhart/resourcemanager",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Resource manager for Google Cloud Storage and local file system",
   "repository": {
     "type": "git",
